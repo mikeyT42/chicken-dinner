@@ -101,7 +101,7 @@ public class Robot extends TimedRobot {
     final double increaseFactor = 0.003;
     if (output == 0.0 && speed > 0.0)
       blackMotor.set(0);
-    if (speed < 0.20)
+    if (speed < 0.15)
       blackMotor.set(output + increaseFactor);
   }
 
