@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoMode;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -48,11 +49,14 @@ public class Robot extends TimedRobot {
    * for any initialization code.
    */
   public Robot() {
+    PortForwarder.add(80, "10.27.12.2", 80); // RoboRIO Ethernet web interface
+    PortForwarder.add(5800, "10.27.12.11", 5800); // Limelight video stream
+    PortForwarder.add(5801, "10.27.12.11", 5801); // Limelight web interface
     redMotor = new Servo(0);
     whiteMotor = new Servo(1);
     SparkMaxConfig config = new SparkMaxConfig();
     config.smartCurrentLimit(30);
-    blackMotor = new SparkMax(19, MotorType.kBrushless);
+    blackMotor = new SparkMax(2, MotorType.kBrushless);
     blackMotor.configure(config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
     // powerDistribution = new PowerDistribution(2, ModuleType.kRev);
@@ -111,9 +115,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Output", output);
 
     final double increaseFactor = 0.003;
-    if (output == 0.0 && speed > 0.0)
-      blackMotor.set(0);
-    if (speed < 0.15)
+    /*
+     * if (output == 0.0 && speed > 0.0)
+     * blackMotor.set(0);
+     */
+    if (speed < 0.20)
       blackMotor.set(output + increaseFactor);
   }
 
