@@ -114,12 +114,13 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Speed", speed);
     SmartDashboard.putNumber("Output", output);
 
-    final double increaseFactor = 0.003;
-    /*
-     * if (output == 0.0 && speed > 0.0)
-     * blackMotor.set(0);
-     */
-    if (speed < 0.20)
+    final double increaseFactor = 0.001;
+    final double motorTemp = blackMotor.getMotorTemperature();
+    SmartDashboard.putNumber("Motor Temperature", motorTemp);
+    if (output == 0.0 && speed > 0.0)
+      blackMotor.set(0);
+
+    if (speed < 1)
       blackMotor.set(output + increaseFactor);
   }
 
@@ -127,7 +128,7 @@ public class Robot extends TimedRobot {
   private void runRedWhiteMotor() {
     if (increasing) {
       angle += 5.0;
-      if (angle >= 180.0) {
+      if (angle >= 80.0) {
         increasing = false;
       }
     } else {
