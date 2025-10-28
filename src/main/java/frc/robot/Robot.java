@@ -56,6 +56,7 @@ public class Robot extends TimedRobot {
     whiteMotor = new Servo(1);
     SparkMaxConfig config = new SparkMaxConfig();
     config.smartCurrentLimit(30);
+    // config.analogSensor.velocityConversionFactor();
     blackMotor = new SparkMax(2, MotorType.kBrushless);
     blackMotor.configure(config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
@@ -111,17 +112,28 @@ public class Robot extends TimedRobot {
   private void runBlackMotor() {
     final double speed = blackMotor.get();
     final double output = blackMotor.getAppliedOutput();
+    final double velocity = blackMotor.getEncoder().getVelocity();
     SmartDashboard.putNumber("Speed", speed);
     SmartDashboard.putNumber("Output", output);
+    SmartDashboard.putNumber("Velocity", velocity);
 
     final double increaseFactor = 0.001;
     final double motorTemp = blackMotor.getMotorTemperature();
     SmartDashboard.putNumber("Motor Temperature", motorTemp);
-    if (output == 0.0 && speed > 0.0)
+
+    final boolean velocityRoughlyZero = Math.abs(velocity) < 0.03;
+    final boolean velocityRoughlyGreaterThanZero = velocity > 0.01;
+    SmartDashboard.putBoolean("Is velocity rougly zero", velocityRoughlyZero);
+    SmartDashboard.putBoolean("Is velocity roughly greater than zero", velocityRoughlyGreaterThanZero);
+
+    if (velocityRoughlyZero || !velocityRoughlyGreaterThanZero)
       blackMotor.set(0);
 
-    if (speed < 1)
-      blackMotor.set(output + increaseFactor);
+    if (output == 0.0 && !velocityRoughlyZero)
+      blackMotor.set(speed - increaseFactor);
+
+    if (speed < 1 && super.isEnabled())
+      blackMotor.set(speed + increaseFactor);
   }
 
   // -----------------------------------------------------------------------------------------------
