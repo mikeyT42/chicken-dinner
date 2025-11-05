@@ -32,7 +32,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 public class Robot extends TimedRobot {
   private static final short NUM_CHANNELS = 16;
 
-  private double angle;
+  private double angle1;
+  private double angle2;
   private boolean increasing;
   private short currentChannel;
 
@@ -66,7 +67,8 @@ public class Robot extends TimedRobot {
     limelight.setVideoMode(PixelFormat.kMJPEG, 320, 240, 30);
     CameraServer.startAutomaticCapture(limelight);
 
-    angle = 0.0;
+    angle1 = 0.0;
+    angle2 = 180.0;
     increasing = true;
     currentChannel = 0;
 
@@ -131,19 +133,21 @@ public class Robot extends TimedRobot {
   // -----------------------------------------------------------------------------------------------
   private void runRedWhiteMotor() {
     if (increasing) {
-      angle += 5.0;
-      if (angle >= 80.0) {
+      angle1 += 5.0;
+      angle2 -= 1.0;
+      if (angle1 >= 80.0) {
         increasing = false;
       }
     } else {
-      angle -= 5.0;
-      if (angle <= 0.0) {
+      angle1 -= 5.0;
+      angle2 += 1.0;
+      if (angle1 <= 0.0) {
         increasing = true;
       }
     }
 
-    whiteMotor.setAngle(angle);
-    redMotor.setAngle(angle);
+    whiteMotor.setAngle(angle1);
+    redMotor.setAngle(angle2);
   }
 
   // -----------------------------------------------------------------------------------------------
