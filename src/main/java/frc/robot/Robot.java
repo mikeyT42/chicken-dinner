@@ -9,6 +9,7 @@ import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoMode;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.util.PixelFormat;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Servo;
@@ -22,6 +23,8 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -44,6 +47,9 @@ public class Robot extends TimedRobot {
   // private final PowerDistribution powerDistribution;
   private final Timer timer;
   private final HttpCamera limelight;
+  private WPI_TalonSRX motor;
+  private DigitalInput leftLimit;
+  private DigitalInput rightLimit;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -60,6 +66,10 @@ public class Robot extends TimedRobot {
     blackMotor = new SparkMax(2, MotorType.kBrushless);
     blackMotor.configure(config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
+    motor = new WPI_TalonSRX(3);
+    leftLimit = new DigitalInput(1);
+    rightLimit = new DigitalInput(0);
+
     // powerDistribution = new PowerDistribution(2, ModuleType.kRev);
     timer = new Timer();
     limelight = new HttpCamera("limelight", "http://10.te.am.11:5800/stream.mjpg",
@@ -107,6 +117,7 @@ public class Robot extends TimedRobot {
     runBlackMotor();
     runRedWhiteMotor();
     runLightBlink();
+    runLimitSwitchMotor();
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -135,13 +146,13 @@ public class Robot extends TimedRobot {
     if (increasing) {
       angle1 += 5.0;
       angle2 -= 1.0;
-      if (angle1 >= 80.0) {
+      if (angle1 >= 80.0 || angle2 <= 0.0) {
         increasing = false;
       }
     } else {
       angle1 -= 5.0;
       angle2 += 1.0;
-      if (angle1 <= 0.0) {
+      if (angle1 <= 0.0 || angle2 >= 80.0) {
         increasing = true;
       }
     }
@@ -168,6 +179,15 @@ public class Robot extends TimedRobot {
   }
 
   // -----------------------------------------------------------------------------------------------
+  private void runLimitSwitchMotor() {
+    final float lsmSpeed = (float) 0.1;
+    motor.set(ControlMode.PercentOutput, lsmSpeed);
+    boolean llOnValue = leftLimit.get();
+    boolean rlOnValue = rightLimit.get();
+    SmartDashboard.putBoolean("Left Limit Switch status", llOnValue);
+    SmartDashboard.putBoolean("Right Limit Switch status", rlOnValue);
+  }
+
   private void runScan() {
     System.out.println("Starting SPARK MAX CAN scan (0..63). Keep robot disabled and motors " +
         "disconnected if possible.");
