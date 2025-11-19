@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
     blackMotor = new SparkMax(2, MotorType.kBrushless);
     blackMotor.configure(config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
-    motor = new WPI_TalonSRX(3);
+    motor = new WPI_TalonSRX(4);
     leftLimit = new DigitalInput(1);
     rightLimit = new DigitalInput(0);
 
@@ -145,20 +145,20 @@ public class Robot extends TimedRobot {
   private void runRedWhiteMotor() {
     if (increasing) {
       angle1 += 5.0;
-      angle2 -= 1.0;
-      if (angle1 >= 80.0 || angle2 <= 0.0) {
+      // angle2 -= 1.0;
+      if (angle1 >= 80.0 /* || angle2 <= 0.0 */) {
         increasing = false;
       }
     } else {
       angle1 -= 5.0;
-      angle2 += 1.0;
-      if (angle1 <= 0.0 || angle2 >= 80.0) {
+      // angle2 += 1.0;
+      if (angle1 <= 0.0 /* || angle2 >= 80.0 */) {
         increasing = true;
       }
     }
 
     whiteMotor.setAngle(angle1);
-    redMotor.setAngle(angle2);
+    redMotor.setAngle(angle1);
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -180,14 +180,19 @@ public class Robot extends TimedRobot {
 
   // -----------------------------------------------------------------------------------------------
   private void runLimitSwitchMotor() {
-    final float lsmSpeed = (float) 0.1;
+    float lsmSpeed = (float) 0.1;
     motor.set(ControlMode.PercentOutput, lsmSpeed);
+
     boolean llOnValue = leftLimit.get();
     boolean rlOnValue = rightLimit.get();
     SmartDashboard.putBoolean("Left Limit Switch status", llOnValue);
     SmartDashboard.putBoolean("Right Limit Switch status", rlOnValue);
+    if (llOnValue || rlOnValue) {
+      lsmSpeed = (float) -lsmSpeed;
+    }
   }
 
+  // -----------------------------------------------------------------------------------------------
   private void runScan() {
     System.out.println("Starting SPARK MAX CAN scan (0..63). Keep robot disabled and motors " +
         "disconnected if possible.");
