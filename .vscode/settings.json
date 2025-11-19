@@ -62,7 +62,8 @@
   "wpilib.autoStartRioLog": false,
   "java.format.enabled": true,
   "java.format.settings.url": "https://raw.githubusercontent.com/google/google-java-format/master/eclipse-java-google-style.xml",
-  "java.format.settings.profile": "GoogleStyle",
+  "java.format.settings.profile": "GoogleStyle", 
+  "editor.formatOnSave": true,
   "[java]": {
     "editor.defaultFormatter": "redhat.java"
   },
