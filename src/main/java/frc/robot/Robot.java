@@ -33,8 +33,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 public class Robot extends TimedRobot {
   private static final short NUM_CHANNELS = 16;
 
-  private double angleWhiteServo;
-  private double angleRedServo;
+  // private float angleWhiteServo;
+  private float angleRedServo;
   private boolean increasingRedServo;
   private boolean increasingWhiteServo;
   private short currentChannel;
@@ -74,9 +74,10 @@ public class Robot extends TimedRobot {
     limelight.setVideoMode(PixelFormat.kMJPEG, 320, 240, 30);
     CameraServer.startAutomaticCapture(limelight);
 
-    angleWhiteServo = 0.0;
-    angleRedServo = 180.0;
+    // angleWhiteServo = (float) 0.0;
+    angleRedServo = (float) 180.0;
     increasingRedServo = true;
+    increasingWhiteServo = true;
     currentChannel = 0;
 
     final PneumaticHub pneumaticHub = new PneumaticHub(1);
@@ -142,19 +143,22 @@ public class Robot extends TimedRobot {
   // -----------------------------------------------------------------------------------------------
   private void runWhiteServo() {
     final float maxAngle = 80;
-    if (increasingWhiteServo) {
-      angleWhiteServo += 5.0;
-      if (angleWhiteServo >= maxAngle) {
-        increasingWhiteServo = false;
-      }
-    } else {
-      angleWhiteServo -= 5.0;
-      if (angleWhiteServo <= 0.0) {
-        increasingWhiteServo = true;
-      }
+    float currentAngle = (float) whiteServo.getAngle();
+
+    if (currentAngle >= maxAngle) {
+      increasingWhiteServo = false;
+    }
+    if (currentAngle <= 0.0) {
+      increasingWhiteServo = true;
     }
 
-    whiteServo.setAngle(angleWhiteServo);
+    if (increasingWhiteServo) {
+      currentAngle += 5.0;
+    } else {
+      currentAngle -= 5.0;
+    }
+
+    whiteServo.setAngle(currentAngle);
   }
 
   // -----------------------------------------------------------------------------------------------
