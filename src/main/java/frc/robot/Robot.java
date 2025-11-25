@@ -75,9 +75,10 @@ public class Robot extends TimedRobot {
     CameraServer.startAutomaticCapture(limelight);
 
     // angleWhiteServo = (float) 0.0;
+    whiteServo.set(0);
     angleRedServo = (float) 180.0;
-    increasingRedServo = true;
     increasingWhiteServo = true;
+    increasingRedServo = false;
     currentChannel = 0;
 
     final PneumaticHub pneumaticHub = new PneumaticHub(1);
