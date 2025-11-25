@@ -78,7 +78,7 @@ public class Robot extends TimedRobot {
     whiteServo.set(0);
     angleRedServo = (float) 180.0;
     increasingWhiteServo = true;
-    increasingRedServo = false;
+    increasingRedServo = true;
     currentChannel = 0;
 
     final PneumaticHub pneumaticHub = new PneumaticHub(1);
