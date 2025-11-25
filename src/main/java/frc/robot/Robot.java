@@ -6,8 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
-import edu.wpi.first.cscore.VideoMode;
-import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticHub;
@@ -44,21 +42,18 @@ public class Robot extends TimedRobot {
   private final Servo redMotor;
   private final SparkMax blackMotor;
   private final Solenoid[] solenoids;
-  // private final PowerDistribution powerDistribution;
+  private final PowerDistribution powerDistribution;
   private final Timer timer;
   private final HttpCamera limelight;
-  private WPI_TalonSRX motor;
-  private DigitalInput leftLimit;
-  private DigitalInput rightLimit;
+  private final WPI_TalonSRX motor;
+  private final DigitalInput leftLimit;
+  private final DigitalInput rightLimit;
 
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
    */
   public Robot() {
-    PortForwarder.add(80, "10.27.12.2", 80); // RoboRIO Ethernet web interface
-    PortForwarder.add(5800, "10.27.12.11", 5800); // Limelight video stream
-    PortForwarder.add(5801, "10.27.12.11", 5801); // Limelight web interface
     redMotor = new Servo(0);
     whiteMotor = new Servo(1);
     SparkMaxConfig config = new SparkMaxConfig();
@@ -70,7 +65,7 @@ public class Robot extends TimedRobot {
     leftLimit = new DigitalInput(1);
     rightLimit = new DigitalInput(0);
 
-    // powerDistribution = new PowerDistribution(2, ModuleType.kRev);
+    powerDistribution = new PowerDistribution(2, ModuleType.kRev);
     timer = new Timer();
     limelight = new HttpCamera("limelight", "http://10.te.am.11:5800/stream.mjpg",
         HttpCamera.HttpCameraKind.kMJPGStreamer);
@@ -108,11 +103,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Debug Red Motor Angle",
         redMotor.getAngle());
     SmartDashboard.putNumber("Debug Current Channel", currentChannel);
-    // SmartDashboard.putNumber("Total Power via Hub",
-    // powerDistribution.getTotalPower());
-    // SmartDashboard.putNumber("Total Current via Hub",
-    // powerDistribution.getTotalCurrent());
-    // SmartDashboard.putNumber("Voltage via Hub", powerDistribution.getVoltage());
+    SmartDashboard.putNumber("Total Power via Hub",
+        powerDistribution.getTotalPower());
+    SmartDashboard.putNumber("Total Current via Hub",
+        powerDistribution.getTotalCurrent());
+    SmartDashboard.putNumber("Voltage via Hub", powerDistribution.getVoltage());
 
     runBlackMotor();
     runRedWhiteMotor();
