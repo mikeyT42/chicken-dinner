@@ -33,19 +33,21 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 public class Robot extends TimedRobot {
   private static final short NUM_CHANNELS = 16;
 
-  private double angle1;
-  private double angle2;
-  private boolean increasing;
+  private double angleWhiteServo;
+  private double angleRedServo;
+  private boolean increasingRedServo;
+  private boolean increasingWhiteServo;
   private short currentChannel;
 
-  private final Servo whiteMotor;
-  private final Servo redMotor;
-  private final SparkMax blackMotor;
+  private final Servo whiteServo;
+  private final Servo redServo;
+  // The One ;)
+  private final SparkMax neoMotor;
   private final Solenoid[] solenoids;
   private final PowerDistribution powerDistribution;
-  private final Timer timer;
+  private final Timer blinkingLightTimer;
   private final HttpCamera limelight;
-  private final WPI_TalonSRX motor;
+  private final WPI_TalonSRX limitSwitchMotor;
   private final DigitalInput leftLimit;
   private final DigitalInput rightLimit;
 
@@ -54,27 +56,27 @@ public class Robot extends TimedRobot {
    * for any initialization code.
    */
   public Robot() {
-    redMotor = new Servo(0);
-    whiteMotor = new Servo(1);
+    redServo = new Servo(0);
+    whiteServo = new Servo(1);
     SparkMaxConfig config = new SparkMaxConfig();
     config.smartCurrentLimit(30);
-    blackMotor = new SparkMax(2, MotorType.kBrushless);
-    blackMotor.configure(config, ResetMode.kNoResetSafeParameters,
+    neoMotor = new SparkMax(2, MotorType.kBrushless);
+    neoMotor.configure(config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
-    motor = new WPI_TalonSRX(4);
+    limitSwitchMotor = new WPI_TalonSRX(4);
     leftLimit = new DigitalInput(1);
     rightLimit = new DigitalInput(0);
 
     powerDistribution = new PowerDistribution(2, ModuleType.kRev);
-    timer = new Timer();
+    blinkingLightTimer = new Timer();
     limelight = new HttpCamera("limelight", "http://10.te.am.11:5800/stream.mjpg",
         HttpCamera.HttpCameraKind.kMJPGStreamer);
     limelight.setVideoMode(PixelFormat.kMJPEG, 320, 240, 30);
     CameraServer.startAutomaticCapture(limelight);
 
-    angle1 = 0.0;
-    angle2 = 180.0;
-    increasing = true;
+    angleWhiteServo = 0.0;
+    angleRedServo = 180.0;
+    increasingRedServo = true;
     currentChannel = 0;
 
     final PneumaticHub pneumaticHub = new PneumaticHub(1);
@@ -84,7 +86,7 @@ public class Robot extends TimedRobot {
     }
     pneumaticHub.close();
 
-    timer.start();
+    blinkingLightTimer.start();
   }
 
   /**
@@ -99,9 +101,9 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     SmartDashboard.putNumber("Debug White Motor Angle",
-        whiteMotor.getAngle());
+        whiteServo.getAngle());
     SmartDashboard.putNumber("Debug Red Motor Angle",
-        redMotor.getAngle());
+        redServo.getAngle());
     SmartDashboard.putNumber("Debug Current Channel", currentChannel);
     SmartDashboard.putNumber("Total Power via Hub",
         powerDistribution.getTotalPower());
@@ -110,7 +112,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Voltage via Hub", powerDistribution.getVoltage());
 
     runBlackMotor();
-    runRedWhiteMotor();
+    runWhiteServo();
+    runRedServo();
     runLightBlink();
     runLimitSwitchMotor();
   }
@@ -120,63 +123,79 @@ public class Robot extends TimedRobot {
     final int MAX_VEL = 11_120;
     final double increaseFactor = 0.001;
 
-    final double speed = blackMotor.get();
-    final double velocity = blackMotor.getEncoder().getVelocity();
+    final double speed = neoMotor.get();
+    final double velocity = neoMotor.getEncoder().getVelocity();
     final double normalizedVelocity = Math.abs(velocity / MAX_VEL);
-    final double motorTemp = blackMotor.getMotorTemperature();
+    final double motorTemp = neoMotor.getMotorTemperature();
     SmartDashboard.putNumber("Speed", speed);
     SmartDashboard.putNumber("Velocity", velocity);
     SmartDashboard.putNumber("Normalized Velocity", normalizedVelocity);
     SmartDashboard.putNumber("Motor Temperature", motorTemp);
 
     if (!super.isEnabled())
-      blackMotor.set(normalizedVelocity);
+      neoMotor.set(normalizedVelocity);
 
     if (normalizedVelocity < 1 && super.isEnabled())
-      blackMotor.set(speed + increaseFactor);
+      neoMotor.set(speed + increaseFactor);
   }
 
   // -----------------------------------------------------------------------------------------------
-  private void runRedWhiteMotor() {
-    if (increasing) {
-      angle1 += 5.0;
-      // angle2 -= 1.0;
-      if (angle1 >= 80.0 /* || angle2 <= 0.0 */) {
-        increasing = false;
+  private void runWhiteServo() {
+    final float maxAngle = 80;
+    if (increasingWhiteServo) {
+      angleWhiteServo += 5.0;
+      if (angleWhiteServo >= maxAngle) {
+        increasingWhiteServo = false;
       }
     } else {
-      angle1 -= 5.0;
-      // angle2 += 1.0;
-      if (angle1 <= 0.0 /* || angle2 >= 80.0 */) {
-        increasing = true;
+      angleWhiteServo -= 5.0;
+      if (angleWhiteServo <= 0.0) {
+        increasingWhiteServo = true;
       }
     }
 
-    whiteMotor.setAngle(angle1);
-    redMotor.setAngle(angle1);
+    whiteServo.setAngle(angleWhiteServo);
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  private void runRedServo() {
+    final float maxAngle = 180;
+    if (increasingRedServo) {
+      angleRedServo += 5.0;
+      if (angleRedServo >= maxAngle) {
+        increasingRedServo = false;
+      }
+    } else {
+      angleRedServo -= 5.0;
+      if (angleRedServo <= 0.0) {
+        increasingRedServo = true;
+      }
+    }
+
+    redServo.setAngle(angleRedServo);
   }
 
   // -----------------------------------------------------------------------------------------------
   void runLightBlink() {
-    if (timer.hasElapsed(1.5)) {
+    if (blinkingLightTimer.hasElapsed(1.5)) {
       if (currentChannel == NUM_CHANNELS) {
         for (Solenoid solenoid : solenoids) {
           solenoid.set(false);
         }
         currentChannel = 0;
-        timer.reset();
+        blinkingLightTimer.reset();
         return; // Skip the rest so that we can have blank time.
       }
       solenoids[currentChannel].set(true);
       currentChannel = (short) (currentChannel + 1);
-      timer.reset();
+      blinkingLightTimer.reset();
     }
   }
 
   // -----------------------------------------------------------------------------------------------
   private void runLimitSwitchMotor() {
     float lsmSpeed = (float) 0.1;
-    motor.set(ControlMode.PercentOutput, lsmSpeed);
+    limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
 
     boolean llOnValue = leftLimit.get();
     boolean rlOnValue = rightLimit.get();
@@ -185,93 +204,5 @@ public class Robot extends TimedRobot {
     if (llOnValue || rlOnValue) {
       lsmSpeed = (float) -lsmSpeed;
     }
-  }
-
-  // -----------------------------------------------------------------------------------------------
-  private void runScan() {
-    System.out.println("Starting SPARK MAX CAN scan (0..63). Keep robot disabled and motors " +
-        "disconnected if possible.");
-    SmartDashboard.putString("SparkScan", "Starting");
-
-    for (int id = 1; id < 63; id++) {
-      SparkMax candidate = new SparkMax(id, MotorType.kBrushless);
-      try {
-        Timer.delay(0.05);
-
-        double busV = candidate.getBusVoltage();
-        if (!Double.isNaN(busV) && busV > 0.0) {
-          String msg = String.format("Found SPARK MAX at CAN ID %d — BusVoltage=%.2fV",
-              id, busV);
-          SmartDashboard.putString("SparkScanFound_" + id, msg);
-        }
-      } catch (Exception e) {
-        SmartDashboard.putString("SparkScan", "Error");
-      } finally {
-        candidate.close();
-      }
-    }
-
-    SmartDashboard.putString("SparkScan", "Complete");
-  }
-
-  /**
-   * This autonomous (along with the chooser code above) shows how to select
-   * between different autonomous modes using the dashboard. The sendable
-   * chooser code works with the Java SmartDashboard. If you prefer the LabVIEW
-   * Dashboard, remove all of the chooser code and uncomment the getString line
-   * to get the auto name from the text box below the Gyro
-   *
-   * <p>
-   * You can add additional auto modes by adding additional comparisons to the
-   * switch structurem below with additional strings. If using the
-   * SendableChooser make sure to add them to the chooser code above as well.
-   */
-  @Override
-  public void autonomousInit() {
-  }
-
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {
-  }
-
-  /** This function is called once when teleop is enabled. */
-  @Override
-  public void teleopInit() {
-  }
-
-  /** This function is called periodically during operator control. */
-  @Override
-  public void teleopPeriodic() {
-  }
-
-  /** This function is called once when the robot is disabled. */
-  @Override
-  public void disabledInit() {
-  }
-
-  /** This function is called periodically when disabled. */
-  @Override
-  public void disabledPeriodic() {
-  }
-
-  /** This function is called once when test mode is enabled. */
-  @Override
-  public void testInit() {
-  }
-
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {
-  }
-
-  /** This function is called once when the robot is first started up. */
-  @Override
-  public void simulationInit() {
-  }
-
-  /** This function is called periodically whilst in simulation. */
-  @Override
-  public void simulationPeriodic() {
   }
 }
