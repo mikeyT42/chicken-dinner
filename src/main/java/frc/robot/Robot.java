@@ -38,6 +38,7 @@ public class Robot extends TimedRobot {
   private boolean increasingRedServo;
   private boolean increasingWhiteServo;
   private short currentChannel;
+  private float lsmSpeed;
 
   private final Servo whiteServo;
   private final Servo redServo;
@@ -46,6 +47,7 @@ public class Robot extends TimedRobot {
   private final Solenoid[] solenoids;
   private final PowerDistribution powerDistribution;
   private final Timer blinkingLightTimer;
+  private final Timer limitSwitchTimer;
   private final HttpCamera limelight;
   private final WPI_TalonSRX limitSwitchMotor;
   private final DigitalInput leftLimit;
@@ -69,6 +71,8 @@ public class Robot extends TimedRobot {
 
     powerDistribution = new PowerDistribution(2, ModuleType.kRev);
     blinkingLightTimer = new Timer();
+    limitSwitchTimer = new Timer();
+    limitSwitchTimer.start();
     limelight = new HttpCamera("limelight", "http://10.te.am.11:5800/stream.mjpg",
         HttpCamera.HttpCameraKind.kMJPGStreamer);
     limelight.setVideoMode(PixelFormat.kMJPEG, 320, 240, 30);
@@ -80,6 +84,7 @@ public class Robot extends TimedRobot {
     increasingWhiteServo = true;
     increasingRedServo = true;
     currentChannel = 0;
+    lsmSpeed = 1;
 
     final PneumaticHub pneumaticHub = new PneumaticHub(1);
     solenoids = new Solenoid[NUM_CHANNELS];
@@ -122,7 +127,7 @@ public class Robot extends TimedRobot {
 
   // -----------------------------------------------------------------------------------------------
   private void runBlackMotor() {
-    final int MAX_VEL = 11_120;
+    final int MAX_VEL = 11_120 / 8;
     final double increaseFactor = 0.001;
 
     final double speed = neoMotor.get();
@@ -199,15 +204,20 @@ public class Robot extends TimedRobot {
 
   // -----------------------------------------------------------------------------------------------
   private void runLimitSwitchMotor() {
-    float lsmSpeed = (float) 0.1;
+    SmartDashboard.putNumber("lsmSpeed 1", lsmSpeed);
+
     limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
 
     boolean llOnValue = leftLimit.get();
     boolean rlOnValue = rightLimit.get();
     SmartDashboard.putBoolean("Left Limit Switch status", llOnValue);
     SmartDashboard.putBoolean("Right Limit Switch status", rlOnValue);
-    if (llOnValue || rlOnValue) {
-      lsmSpeed = (float) -lsmSpeed;
+    if ((rlOnValue || llOnValue) && limitSwitchTimer.hasElapsed(0.5)) {
+      SmartDashboard.putBoolean("this better work >:(", true);
+      lsmSpeed = -lsmSpeed;
+      SmartDashboard.putNumber("lsmSpeed", lsmSpeed);
+      limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
+      limitSwitchTimer.reset();
     }
   }
 }
