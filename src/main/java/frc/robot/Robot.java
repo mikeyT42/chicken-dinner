@@ -212,7 +212,7 @@ public class Robot extends TimedRobot {
     boolean rlOnValue = rightLimit.get();
     SmartDashboard.putBoolean("Left Limit Switch status", llOnValue);
     SmartDashboard.putBoolean("Right Limit Switch status", rlOnValue);
-    if ((rlOnValue || llOnValue) && limitSwitchTimer.hasElapsed(0.5)) {
+    if ((rlOnValue || llOnValue) && limitSwitchTimer.hasElapsed(0.25)) {
       SmartDashboard.putBoolean("this better work >:(", true);
       lsmSpeed = -lsmSpeed;
       SmartDashboard.putNumber("lsmSpeed", lsmSpeed);
