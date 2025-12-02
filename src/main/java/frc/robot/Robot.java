@@ -23,6 +23,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -123,6 +124,8 @@ public class Robot extends TimedRobot {
     runRedServo();
     runLightBlink();
     runLimitSwitchMotor();
+    // You run the swerve drive stuff.
+    CommandScheduler.getInstance().run();
   }
 
   // -----------------------------------------------------------------------------------------------
