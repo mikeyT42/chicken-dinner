@@ -118,11 +118,8 @@ public class RobotContainer {
      * Flight joysticks}.
      */
     private void configureBindings() {
-        Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
         Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-        Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
         Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-        Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
 
         if (RobotBase.isSimulation()) {
             drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
