@@ -224,7 +224,7 @@ public class Robot extends TimedRobot {
 
   // -----------------------------------------------------------------------------------------------
   private void runLimitSwitchMotor() {
-    SmartDashboard.putNumber("lsmSpeed 1", lsmSpeed);
+    SmartDashboard.putNumber("L.S.M. Speed", lsmSpeed);
 
     final boolean isClockWise = lsmSpeed > 0;
     limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
@@ -242,7 +242,6 @@ public class Robot extends TimedRobot {
 
     if ((isClockWise && rlOnValue) || (!isClockWise && llOnValue)) {
       lsmSpeed = -lsmSpeed;
-      SmartDashboard.putNumber("lsmSpeed", lsmSpeed);
       limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
     }
   }
