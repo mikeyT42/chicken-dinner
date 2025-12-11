@@ -80,8 +80,8 @@ public class Robot extends TimedRobot {
 	 */
 	public Robot() {
 		if (super.isAutonomous()) {
-			super.autonomousExit();
-			super.disabledInit();
+			System.out.println("No auto allowed.");
+			System.exit(1);
 		}
 		redServo = new Servo(RED_SERVO_CHANNEL);
 		whiteServo = new Servo(WHITE_SERVO_CHANNEL);
@@ -129,6 +129,10 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotPeriodic() {
+		if (super.isAutonomous()) {
+			System.out.println("No auto allowed.");
+			System.exit(1);
+		}
 		SmartDashboard.putNumber("Debug White Motor Angle",
 				whiteServo.getAngle());
 		SmartDashboard.putNumber("Debug Red Motor Angle",
