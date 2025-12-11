@@ -32,7 +32,28 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
+  // ===============================================================================================
+  // PWM
+  // ===============================================================================================
+  private static final short RED_SERVO_CHANNEL = 0;
+  private static final short WHITE_SERVO_CHANNEL = 1;
+
+  // ===============================================================================================
+  // CAN
+  // ===============================================================================================
+  private static final short NEO_CHANNEL = 2;
+  private static final short LS_MOTOR_CHANNEL = 4;
+  private static final short POWER_DISTRIBUTION_CHANNEL = 3;
+  private static final short PNEUMATIC_HUB_CHANNEL = 1;
+
+  // For the pneumatic hub initialization and light blinking.
   private static final short NUM_CHANNELS = 16;
+
+  // ===============================================================================================
+  // DIO
+  // ===============================================================================================
+  private static final short LIMIT_SWITCH_LEFT = 1;
+  private static final short LIMIT_SWITCH_RIGHT = 0;
 
   // private float angleWhiteServo;
   private float angleRedServo;
@@ -59,18 +80,18 @@ public class Robot extends TimedRobot {
    * for any initialization code.
    */
   public Robot() {
-    redServo = new Servo(0);
-    whiteServo = new Servo(1);
+    redServo = new Servo(RED_SERVO_CHANNEL);
+    whiteServo = new Servo(WHITE_SERVO_CHANNEL);
     SparkMaxConfig config = new SparkMaxConfig();
     config.smartCurrentLimit(30);
-    neoMotor = new SparkMax(2, MotorType.kBrushless);
+    neoMotor = new SparkMax(NEO_CHANNEL, MotorType.kBrushless);
     neoMotor.configure(config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
-    limitSwitchMotor = new WPI_TalonSRX(4);
-    leftLimit = new DigitalInput(1);
-    rightLimit = new DigitalInput(0);
+    limitSwitchMotor = new WPI_TalonSRX(LS_MOTOR_CHANNEL);
+    rightLimit = new DigitalInput(LIMIT_SWITCH_RIGHT);
+    leftLimit = new DigitalInput(LIMIT_SWITCH_LEFT);
 
-    powerDistribution = new PowerDistribution(2, ModuleType.kRev);
+    powerDistribution = new PowerDistribution(POWER_DISTRIBUTION_CHANNEL, ModuleType.kRev);
     blinkingLightTimer = new Timer();
     limitSwitchTimer = new Timer();
     limitSwitchTimer.start();
@@ -79,15 +100,14 @@ public class Robot extends TimedRobot {
     limelight.setVideoMode(PixelFormat.kMJPEG, 320, 240, 30);
     CameraServer.startAutomaticCapture(limelight);
 
-    // angleWhiteServo = (float) 0.0;
     whiteServo.set(0);
-    angleRedServo = (float) 180.0;
+    redServo.set(180.0);
     increasingWhiteServo = true;
     increasingRedServo = true;
     currentChannel = 0;
     lsmSpeed = 1;
 
-    final PneumaticHub pneumaticHub = new PneumaticHub(1);
+    final PneumaticHub pneumaticHub = new PneumaticHub(PNEUMATIC_HUB_CHANNEL);
     solenoids = new Solenoid[NUM_CHANNELS];
     for (int i = 0; i < NUM_CHANNELS; i++) {
       solenoids[i] = pneumaticHub.makeSolenoid(i);
