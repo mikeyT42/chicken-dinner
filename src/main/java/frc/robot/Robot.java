@@ -229,8 +229,8 @@ public class Robot extends TimedRobot {
     final boolean isClockWise = lsmSpeed > 0;
     limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
 
-    boolean llOnValue = leftLimit.get();
-    boolean rlOnValue = rightLimit.get();
+    final boolean llOnValue = leftLimit.get();
+    final boolean rlOnValue = rightLimit.get();
     SmartDashboard.putBoolean("Left Limit Switch status", llOnValue);
     SmartDashboard.putBoolean("Right Limit Switch status", rlOnValue);
     // Special case to get the motor in the correct section of rotation by hand.
