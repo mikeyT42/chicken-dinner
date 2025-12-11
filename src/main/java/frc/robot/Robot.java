@@ -52,8 +52,8 @@ public class Robot extends TimedRobot {
   // ===============================================================================================
   // DIO
   // ===============================================================================================
-  private static final short LIMIT_SWITCH_LEFT = 1;
-  private static final short LIMIT_SWITCH_RIGHT = 0;
+  private static final short LIMIT_SWITCH_LEFT = 0;
+  private static final short LIMIT_SWITCH_RIGHT = 1;
 
   // private float angleWhiteServo;
   private float angleRedServo;
@@ -69,7 +69,6 @@ public class Robot extends TimedRobot {
   private final Solenoid[] solenoids;
   private final PowerDistribution powerDistribution;
   private final Timer blinkingLightTimer;
-  private final Timer limitSwitchTimer;
   private final HttpCamera limelight;
   private final WPI_TalonSRX limitSwitchMotor;
   private final DigitalInput leftLimit;
@@ -93,8 +92,6 @@ public class Robot extends TimedRobot {
 
     powerDistribution = new PowerDistribution(POWER_DISTRIBUTION_CHANNEL, ModuleType.kRev);
     blinkingLightTimer = new Timer();
-    limitSwitchTimer = new Timer();
-    limitSwitchTimer.start();
     limelight = new HttpCamera("limelight", "http://10.te.am.11:5800/stream.mjpg",
         HttpCamera.HttpCameraKind.kMJPGStreamer);
     limelight.setVideoMode(PixelFormat.kMJPEG, 320, 240, 30);
@@ -105,7 +102,7 @@ public class Robot extends TimedRobot {
     increasingWhiteServo = true;
     increasingRedServo = true;
     currentChannel = 0;
-    lsmSpeed = 1;
+    lsmSpeed = (float) 0.15;
 
     final PneumaticHub pneumaticHub = new PneumaticHub(PNEUMATIC_HUB_CHANNEL);
     solenoids = new Solenoid[NUM_CHANNELS];
@@ -145,7 +142,7 @@ public class Robot extends TimedRobot {
     runLightBlink();
     runLimitSwitchMotor();
     // You run the swerve drive stuff.
-    CommandScheduler.getInstance().run();
+    // CommandScheduler.getInstance().run();
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -229,18 +226,28 @@ public class Robot extends TimedRobot {
   private void runLimitSwitchMotor() {
     SmartDashboard.putNumber("lsmSpeed 1", lsmSpeed);
 
+    final boolean isClockWise = lsmSpeed > 0;
     limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
 
     boolean llOnValue = leftLimit.get();
     boolean rlOnValue = rightLimit.get();
     SmartDashboard.putBoolean("Left Limit Switch status", llOnValue);
     SmartDashboard.putBoolean("Right Limit Switch status", rlOnValue);
-    if ((rlOnValue || llOnValue) && limitSwitchTimer.hasElapsed(0.25)) {
-      SmartDashboard.putBoolean("this better work >:(", true);
+    // Special case to get the motor in the correct section of rotation.
+    if (rlOnValue && llOnValue) {
+      lsmSpeed = Math.abs(lsmSpeed);
+      limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
+      return;
+    }
+    if (isClockWise && rlOnValue) {
       lsmSpeed = -lsmSpeed;
       SmartDashboard.putNumber("lsmSpeed", lsmSpeed);
       limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
-      limitSwitchTimer.reset();
+    }
+    if (!isClockWise && llOnValue) {
+      lsmSpeed = -lsmSpeed;
+      SmartDashboard.putNumber("lsmSpeed", lsmSpeed);
+      limitSwitchMotor.set(ControlMode.PercentOutput, lsmSpeed);
     }
   }
 }
