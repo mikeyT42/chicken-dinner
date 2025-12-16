@@ -33,72 +33,76 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
 
         // Replace with CommandPS4Controller or CommandJoystick if needed
-        final CommandXboxController driverXbox = new CommandXboxController(0);
+        private final CommandXboxController driverXbox;
         // The robot's subsystems and commands are defined here...
-        private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-                        "swerve"));
-
+        private final SwerveSubsystem drivebase;
         /**
          * Converts driver input into a field-relative ChassisSpeeds that is controlled
          * by angular velocity.
          */
-        SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                        () -> driverXbox.getLeftY() * -1,
-                        () -> driverXbox.getLeftX() * -1)
-                        .withControllerRotationAxis(driverXbox::getRightX)
-                        .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(0.8)
-                        .allianceRelativeControl(true);
-
+        SwerveInputStream driveAngularVelocity;
         /**
          * Clone's the angular velocity input stream and converts it to a fieldRelative
          * input stream.
          */
-        SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
-                        .withControllerHeadingAxis(driverXbox::getRightX,
-                                        driverXbox::getRightY)
-                        .headingWhile(true);
+        SwerveInputStream driveDirectAngle;
 
         /**
          * Clone's the angular velocity input stream and converts it to a robotRelative
          * input stream.
          */
-        SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
-                        .allianceRelativeControl(false);
-
-        SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                        () -> -driverXbox.getLeftY(),
-                        () -> -driverXbox.getLeftX())
-                        .withControllerRotationAxis(() -> driverXbox.getRawAxis(
-                                        2))
-                        .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(0.8)
-                        .allianceRelativeControl(true);
+        SwerveInputStream driveRobotOriented;
+        SwerveInputStream driveAngularVelocityKeyboard;
         // Derive the heading axis with math!
-        SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
-                        .withControllerHeadingAxis(() -> Math.sin(
-                                        driverXbox.getRawAxis(
-                                                        2) *
-                                                        Math.PI)
-                                        *
-                                        (Math.PI *
-                                                        2),
-                                        () -> Math.cos(
-                                                        driverXbox.getRawAxis(
-                                                                        2) *
-                                                                        Math.PI)
-                                                        *
-                                                        (Math.PI *
-                                                                        2))
-                        .headingWhile(true)
-                        .translationHeadingOffset(true)
-                        .translationHeadingOffset(Rotation2d.fromDegrees(
-                                        0));
+        SwerveInputStream driveDirectAngleKeyboard;
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
-        public RobotContainer() {
+        public RobotContainer(final CommandXboxController driverXbox) {
+                this.driverXbox = driverXbox;
+                drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+                                "swerve"));
+                driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+                                () -> driverXbox.getLeftY() * -1,
+                                () -> driverXbox.getLeftX() * -1)
+                                .withControllerRotationAxis(driverXbox::getRightX)
+                                .deadband(OperatorConstants.DEADBAND)
+                                .scaleTranslation(0.8)
+                                .allianceRelativeControl(true);
+                driveDirectAngle = driveAngularVelocity.copy()
+                                .withControllerHeadingAxis(driverXbox::getRightX,
+                                                driverXbox::getRightY)
+                                .headingWhile(true);
+                driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
+                                .allianceRelativeControl(false);
+                driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
+                                () -> -driverXbox.getLeftY(),
+                                () -> -driverXbox.getLeftX())
+                                .withControllerRotationAxis(() -> driverXbox.getRawAxis(
+                                                2))
+                                .deadband(OperatorConstants.DEADBAND)
+                                .scaleTranslation(0.8)
+                                .allianceRelativeControl(true);
+                driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
+                                .withControllerHeadingAxis(() -> Math.sin(
+                                                driverXbox.getRawAxis(
+                                                                2) *
+                                                                Math.PI)
+                                                *
+                                                (Math.PI *
+                                                                2),
+                                                () -> Math.cos(
+                                                                driverXbox.getRawAxis(
+                                                                                2) *
+                                                                                Math.PI)
+                                                                *
+                                                                (Math.PI *
+                                                                                2))
+                                .headingWhile(true)
+                                .translationHeadingOffset(true)
+                                .translationHeadingOffset(Rotation2d.fromDegrees(
+                                                0));
                 // Configure the trigger bindings
                 configureBindings();
                 DriverStation.silenceJoystickConnectionWarning(true);

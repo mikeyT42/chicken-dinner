@@ -24,6 +24,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -73,6 +74,7 @@ public class Robot extends TimedRobot {
 	private final WPI_TalonSRX limitSwitchMotor;
 	private final DigitalInput leftLimit;
 	private final DigitalInput rightLimit;
+	private final CommandXboxController driverXbox;
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -86,7 +88,7 @@ public class Robot extends TimedRobot {
 		redServo = new Servo(RED_SERVO_CHANNEL);
 		whiteServo = new Servo(WHITE_SERVO_CHANNEL);
 		SparkMaxConfig config = new SparkMaxConfig();
-		config.smartCurrentLimit(30);
+		config.smartCurrentLimit(25);
 		neoMotor = new SparkMax(NEO_CHANNEL, MotorType.kBrushless);
 		neoMotor.configure(config, ResetMode.kNoResetSafeParameters,
 				PersistMode.kNoPersistParameters);
@@ -98,6 +100,7 @@ public class Robot extends TimedRobot {
 		blinkingLightTimer = new Timer();
 		limelight = new HttpCamera("limelight", "http://10.te.am.11:5800/stream.mjpg",
 				HttpCamera.HttpCameraKind.kMJPGStreamer);
+		driverXbox = new CommandXboxController(0);
 		limelight.setVideoMode(PixelFormat.kMJPEG, 320, 240, 30);
 		CameraServer.startAutomaticCapture(limelight);
 
@@ -155,23 +158,12 @@ public class Robot extends TimedRobot {
 
 	// -----------------------------------------------------------------------------------------------
 	private void runBlackMotor() {
-		final int MAX_VEL = 11_120 / 8;
-		final double increaseFactor = 0.001;
-
 		final double speed = neoMotor.get();
 		final double velocity = neoMotor.getEncoder().getVelocity();
-		final double normalizedVelocity = Math.abs(velocity / MAX_VEL);
-		final double motorTemp = neoMotor.getMotorTemperature();
 		SmartDashboard.putNumber("Speed", speed);
 		SmartDashboard.putNumber("Velocity", velocity);
-		SmartDashboard.putNumber("Normalized Velocity", normalizedVelocity);
-		SmartDashboard.putNumber("Motor Temperature", motorTemp);
-
-		if (!super.isEnabled())
-			neoMotor.set(normalizedVelocity);
-
-		if (normalizedVelocity < 1 && super.isEnabled())
-			neoMotor.set(speed + increaseFactor);
+		SmartDashboard.putNumber("RT angle", driverXbox.getRightTriggerAxis());
+		neoMotor.set(driverXbox.getRightTriggerAxis());
 	}
 
 	// -----------------------------------------------------------------------------------------------
