@@ -158,12 +158,19 @@ public class Robot extends TimedRobot {
 
 	// -----------------------------------------------------------------------------------------------
 	private void runBlackMotor() {
-		final double speed = neoMotor.get();
+		double speed = neoMotor.get();
 		final double velocity = neoMotor.getEncoder().getVelocity();
 		SmartDashboard.putNumber("Speed", speed);
 		SmartDashboard.putNumber("Velocity", velocity);
 		SmartDashboard.putNumber("RT angle", driverXbox.getRightTriggerAxis());
-		neoMotor.set(driverXbox.getRightTriggerAxis());
+		final double leftTrigger = driverXbox.getLeftTriggerAxis();
+		final double rightTrigger = driverXbox.getRightTriggerAxis();
+		if (rightTrigger >= 0) {
+			speed = rightTrigger;
+		} else if (leftTrigger >= 0) {
+			speed = leftTrigger;
+		}
+		neoMotor.set(speed);
 	}
 
 	// -----------------------------------------------------------------------------------------------
