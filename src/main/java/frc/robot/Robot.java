@@ -42,7 +42,6 @@ public class Robot extends TimedRobot {
 			System.exit(1);
 		}
 
-		// You run the swerve drive stuff.
 		CommandScheduler.getInstance().run();
 	}
 

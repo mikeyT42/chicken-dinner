@@ -21,12 +21,12 @@ public class WhiteServoSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("White Motor Angle", whiteServo.getAngle());
     }
 
-    // ---------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
     public Command runWhiteServo() {
         return this.run(() -> whiteServo.setAngle(getAngle()));
     }
 
-    // ---------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
     private double getAngle() {
         final float maxAngle = 80;
         float currentAngle = (float) whiteServo.getAngle();
