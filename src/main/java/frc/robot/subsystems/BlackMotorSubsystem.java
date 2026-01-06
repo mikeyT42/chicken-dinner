@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
@@ -39,13 +35,14 @@ public class BlackMotorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Velocity", velocity);
     }
 
-    // High-level method for commands to use
-    public void setMotorSpeed(double speed) {
-        neoMotor.set(speed);
-    }
-
     // Example command factory: Run motor based on a supplier (e.g., trigger axis)
     public Command runMotor(DoubleSupplier speedSupplier) {
         return this.run(() -> setMotorSpeed(speedSupplier.getAsDouble()));
     }
+
+    // High-level method for commands to use
+    private void setMotorSpeed(double speed) {
+        neoMotor.set(speed);
+    }
+
 }
