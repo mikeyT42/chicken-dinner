@@ -1,11 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -23,10 +17,10 @@ public class OperatorInput {
 
         // Input streams for swerve
         private final SwerveInputStream driveAngularVelocity;
+        @SuppressWarnings("unused")
         private final SwerveInputStream driveDirectAngle;
+        @SuppressWarnings("unused")
         private final SwerveInputStream driveRobotOriented;
-        private final SwerveInputStream driveAngularVelocityKeyboard;
-        private final SwerveInputStream driveDirectAngleKeyboard;
 
         public OperatorInput(SwerveSubsystem drivebase, BlackMotorSubsystem blackMotorSubsystem) {
                 this.drivebase = drivebase;
@@ -49,29 +43,12 @@ public class OperatorInput {
                 driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
                                 .allianceRelativeControl(false);
 
-                driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                () -> -driverXbox.getLeftY(),
-                                () -> -driverXbox.getLeftX())
-                                .withControllerRotationAxis(() -> driverXbox.getRawAxis(2))
-                                .deadband(OperatorConstants.DEADBAND)
-                                .scaleTranslation(0.8)
-                                .allianceRelativeControl(true);
-
-                driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
-                                .withControllerHeadingAxis(
-                                                () -> Math.sin(driverXbox.getRawAxis(2) * Math.PI) * (Math.PI * 2),
-                                                () -> Math.cos(driverXbox.getRawAxis(2) * Math.PI) * (Math.PI * 2))
-                                .headingWhile(true)
-                                .translationHeadingOffset(true)
-                                .translationHeadingOffset(Rotation2d.fromDegrees(0));
-
                 // Configure all bindings
                 configureBindings();
         }
 
         private void configureBindings() {
                 Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-                Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
 
                 drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
