@@ -60,10 +60,10 @@ public class OperatorInput {
                 driverXbox.rightBumper().onTrue(Commands.none());
 
                 // New bindings for BlackMotorSubsystem using triggers
-                new Trigger(() -> driverXbox.getRightTriggerAxis() > OperatorConstants.DEADBAND)
+                new Trigger(() -> driverXbox.getRightTriggerAxis() > 0)
                                 .whileTrue(blackMotorSubsystem.runMotor(() -> driverXbox.getRightTriggerAxis()));
 
-                new Trigger(() -> driverXbox.getLeftTriggerAxis() > OperatorConstants.DEADBAND)
+                new Trigger(() -> driverXbox.getLeftTriggerAxis() > 0)
                                 .whileTrue(blackMotorSubsystem.runMotor(() -> -driverXbox.getLeftTriggerAxis()));
 
                 // Put trigger values to dashboard (from user's snippet)
