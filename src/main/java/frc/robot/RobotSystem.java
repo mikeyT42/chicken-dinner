@@ -30,7 +30,7 @@ import swervelib.SwerveInputStream;
  * Instead, the structure of the robot (including subsystems, commands, and
  * trigger mappings) should be declared here.
  */
-public class RobotContainer {
+public class RobotSystem {
 
         // Replace with CommandPS4Controller or CommandJoystick if needed
         private final CommandXboxController driverXbox;
@@ -59,10 +59,9 @@ public class RobotContainer {
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
-        public RobotContainer(final CommandXboxController driverXbox) {
-                this.driverXbox = driverXbox;
-                drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-                                "swerve"));
+        public RobotSystem() {
+                driverXbox = new CommandXboxController(0);
+                drivebase = new SwerveSubsystem(Filesystem.getDeployDirectory());
                 driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                                 () -> driverXbox.getLeftY() * -1,
                                 () -> driverXbox.getLeftX() * -1)
@@ -85,10 +84,7 @@ public class RobotContainer {
                                 .scaleTranslation(0.8)
                                 .allianceRelativeControl(true);
                 driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
-                                .withControllerHeadingAxis(() -> Math.sin(
-                                                driverXbox.getRawAxis(
-                                                                2) *
-                                                                Math.PI)
+                                .withControllerHeadingAxis(() -> Math.sin(driverXbox.getRawAxis(2) * Math.PI)
                                                 *
                                                 (Math.PI *
                                                                 2),

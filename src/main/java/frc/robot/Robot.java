@@ -76,6 +76,8 @@ public class Robot extends TimedRobot {
 	private final DigitalInput rightLimit;
 	private final CommandXboxController driverXbox;
 
+	private RobotSystem robotSystem;
+
 	/**
 	 * This function is run when the robot is first started up and should be used
 	 * for any initialization code.
@@ -87,11 +89,13 @@ public class Robot extends TimedRobot {
 		}
 		redServo = new Servo(RED_SERVO_CHANNEL);
 		whiteServo = new Servo(WHITE_SERVO_CHANNEL);
-		SparkMaxConfig config = new SparkMaxConfig();
-		config.smartCurrentLimit(25);
-		neoMotor = new SparkMax(NEO_CHANNEL, MotorType.kBrushless);
-		neoMotor.configure(config, ResetMode.kNoResetSafeParameters,
-				PersistMode.kNoPersistParameters);
+		/*
+		 * SparkMaxConfig config = new SparkMaxConfig();
+		 * config.smartCurrentLimit(25);
+		 * neoMotor = new SparkMax(NEO_CHANNEL, MotorType.kBrushless);
+		 * neoMotor.configure(config, ResetMode.kNoResetSafeParameters,
+		 * PersistMode.kNoPersistParameters);
+		 */
 		limitSwitchMotor = new WPI_TalonSRX(LS_MOTOR_CHANNEL);
 		rightLimit = new DigitalInput(LIMIT_SWITCH_RIGHT);
 		leftLimit = new DigitalInput(LIMIT_SWITCH_LEFT);
@@ -119,6 +123,8 @@ public class Robot extends TimedRobot {
 		pneumaticHub.close();
 
 		blinkingLightTimer.start();
+
+		robotSystem = new RobotSystem();
 	}
 
 	/**
@@ -152,8 +158,9 @@ public class Robot extends TimedRobot {
 		runRedServo();
 		runLightBlink();
 		runLimitSwitchMotor();
+
 		// You run the swerve drive stuff.
-		// CommandScheduler.getInstance().run();
+		CommandScheduler.getInstance().run();
 	}
 
 	// ---------------------------------------------------------------------------------------------
