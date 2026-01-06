@@ -62,13 +62,13 @@
   "wpilib.autoStartRioLog": false,
   "java.format.enabled": true,
   "java.format.settings.url": "https://raw.githubusercontent.com/google/google-java-format/master/eclipse-java-google-style.xml",
-  "java.format.settings.profile": "GoogleStyle", 
+  "java.format.settings.profile": "GoogleStyle",
   "editor.formatOnSave": true,
   "[java]": {
     "editor.defaultFormatter": "redhat.java"
   },
   "editor.rulers": [
-    100
+    120
   ],
   "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
 }
