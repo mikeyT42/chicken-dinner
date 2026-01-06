@@ -33,15 +33,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  * the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
-	// ===============================================================================================
+	// =============================================================================================
 	// PWM
-	// ===============================================================================================
+	// =============================================================================================
 	private static final short RED_SERVO_CHANNEL = 0;
 	private static final short WHITE_SERVO_CHANNEL = 1;
 
-	// ===============================================================================================
+	// =============================================================================================
 	// CAN
-	// ===============================================================================================
+	// =============================================================================================
 	private static final short NEO_CHANNEL = 2;
 	private static final short LS_MOTOR_CHANNEL = 4;
 	private static final short POWER_DISTRIBUTION_CHANNEL = 3;
@@ -50,9 +50,9 @@ public class Robot extends TimedRobot {
 	// For the pneumatic hub initialization and light blinking.
 	private static final short NUM_CHANNELS = 16;
 
-	// ===============================================================================================
+	// =============================================================================================
 	// DIO
-	// ===============================================================================================
+	// =============================================================================================
 	private static final short LIMIT_SWITCH_LEFT = 0;
 	private static final short LIMIT_SWITCH_RIGHT = 1;
 
@@ -156,7 +156,7 @@ public class Robot extends TimedRobot {
 		// CommandScheduler.getInstance().run();
 	}
 
-	// -----------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 	private void runBlackMotor() {
 		double speed = neoMotor.get();
 		final double velocity = neoMotor.getEncoder().getVelocity();
@@ -173,7 +173,7 @@ public class Robot extends TimedRobot {
 		neoMotor.set(speed);
 	}
 
-	// -----------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 	private void runWhiteServo() {
 		final float maxAngle = 80;
 		float currentAngle = (float) whiteServo.getAngle();
@@ -194,7 +194,7 @@ public class Robot extends TimedRobot {
 		whiteServo.setAngle(currentAngle);
 	}
 
-	// -----------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 	private void runRedServo() {
 		final float maxAngle = 180;
 		if (increasingRedServo) {
@@ -212,7 +212,7 @@ public class Robot extends TimedRobot {
 		redServo.setAngle(angleRedServo);
 	}
 
-	// -----------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 	void runLightBlink() {
 		if (blinkingLightTimer.hasElapsed(1.5)) {
 			if (currentChannel == NUM_CHANNELS) {
@@ -229,7 +229,7 @@ public class Robot extends TimedRobot {
 		}
 	}
 
-	// -----------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 	private void runLimitSwitchMotor() {
 		SmartDashboard.putNumber("L.S.M. Speed", lsmSpeed);
 
